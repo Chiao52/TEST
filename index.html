@@ -2,77 +2,334 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <title>郭熙早春大冒險 (Guo Xi's Early Spring Adventure)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2c2c2c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: "MingLiU", "PMingLiU", serif; /* 仿宋/明體風格 */
+            color: #dcdcdc;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: 8px solid #5d4037; /* 畫框感 */
+        }
+        canvas {
+            background: linear-gradient(to bottom, #dcb98a, #a89f91); /* 絹本泛黃質感 + 煙嵐 */
+            display: block;
+        }
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+        }
+        h1 { margin: 0; font-size: 24px; color: #3e2723; text-shadow: 1px 1px 0 rgba(255,255,255,0.5); }
+        p { margin: 5px 0; color: #4e342e; font-weight: bold; }
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #3e2723;
+            font-size: 14px;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
 
-    <h1 id="game-title">谿山行旅</h1>
-
-    <div class="status-bar">
-        <div>目前位置：<span id="current-location">準備出發</span></div>
-        <div>領悟次數：<span id="total-steps">0</span></div>
+<div id="game-container">
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
+    <div id="ui-layer">
+        <h1>早春圖：壬子年行旅</h1>
+        <p>收集印章: <span id="score">0</span> / 3</p>
     </div>
-
-    <div class="main-layout">
-        <div class="game-container">
-            <div class="board-grid">
-                <div class="cell active" data-path-index="0"><div class="player-token"></div><div class="cell-icon">⛰️</div><div>山腳起點</div><div class="seal-tag">啟程</div></div>
-                <div class="cell" data-path-index="1"><div class="player-token"></div><div class="cell-icon">👤</div><div>性緩為寬</div><div class="seal-tag">本名</div></div>
-                <div class="cell" data-path-index="2"><div class="player-token"></div><div class="cell-icon">📜</div><div>師法造化</div><div class="seal-tag">哲學</div></div>
-                <div class="cell" data-path-index="3"><div class="player-token"></div><div class="cell-icon">🏠</div><div>終南太華</div><div class="seal-tag">隱居</div></div>
-                <div class="cell" data-path-index="4"><div class="player-token"></div><div class="cell-icon">🔍</div><div>隱藏簽名</div><div class="seal-tag">細節</div></div>
-
-                <div class="cell" data-path-index="15"><div class="player-token"></div><div class="cell-icon">🏆</div><div>代表形象</div><div class="seal-tag">巔峰</div></div>
-                
-                <div class="center-panel">
-                    <div class="zoom-overlay" id="zoomTag">🔍 局部觀察</div>
-                    <div class="symbolic-scroll" id="mainArt">
-                        <div class="scroll-peak">⛰️</div> <div class="scroll-mist">🌫️🌫️🌫️</div> <div class="scroll-temple">⛩️</div> <div class="scroll-base">🪨🪨</div> <div class="scroll-travelers">🐴🚶</div> <div class="scroll-signature">范寬</div>
-                    </div>
-                </div>
-
-                <div class="cell" data-path-index="5"><div class="player-token"></div><div class="cell-icon">📐</div><div>三段構圖</div><div class="seal-tag">空間</div></div>
-
-                <div class="cell" data-path-index="14"><div class="player-token"></div><div class="cell-icon">📕</div><div>石渠寶笈</div><div class="seal-tag">著錄</div></div>
-                <div class="cell" data-path-index="6"><div class="player-token"></div><div class="cell-icon">🐴</div><div>車馬行旅</div><div class="seal-tag">細節</div></div>
-
-                <div class="cell" data-path-index="13"><div class="player-token"></div><div class="cell-icon">🔴</div><div>忠孝之家</div><div class="seal-tag">流傳</div></div>
-                <div class="cell" data-path-index="7"><div class="player-token"></div><div class="cell-icon">⛩️</div><div>山門蘭若</div><div class="seal-tag">細節</div></div>
-
-                <div class="cell" data-path-index="12"><div class="player-token"></div><div class="cell-icon">✒️</div><div>董其昌題</div><div class="seal-tag">鑑定</div></div>
-                <div class="cell" data-path-index="11"><div class="player-token"></div><div class="cell-icon">🌟</div><div>北宋三家</div><div class="seal-tag">地位</div></div>
-                <div class="cell" data-path-index="10"><div class="player-token"></div><div class="cell-icon">🪨</div><div>寫山真骨</div><div class="seal-tag">風骨</div></div>
-                <div class="cell" data-path-index="9"><div class="player-token"></div><div class="cell-icon">🌫️</div><div>雲霧繚繞</div><div class="seal-tag">墨色</div></div>
-                <div class="cell" data-path-index="8"><div class="player-token"></div><div class="cell-icon">🖌️</div><div>筆勢雄厚</div><div class="seal-tag">技法</div></div>
-            </div>
-        </div>
-
-        <div class="collection-box">
-            <div class="box-title">典藏印</div>
-            <div class="seal-slot" id="seal-signature"><span>范寬</span></div>
-            <div class="seal-slot" id="seal-dong"><span>董其昌</span></div>
-            <div class="seal-slot" id="seal-family"><span>忠孝</span></div>
-            <div class="seal-slot" id="seal-palace"><span>石渠</span></div>
-        </div>
+    <div id="instructions">
+        按 <strong>← →</strong> 移動，按 <strong>空白鍵</strong> 或 <strong>↑</strong> 跳躍。 <br>
+        穿越雲頭皴岩石，避開深淵，抵達右側的樓閣。
     </div>
+</div>
 
-    <div class="log-container">
-        <div class="log-header">📜 行旅路誌</div>
-        <ul class="log-area" id="gameLog">
-            <li>> 范寬帶您進入大山大水之旅...</li>
-        </ul>
-    </div>
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
 
-    <div class="controls-area">
-        <button class="dice-btn" id="rollBtn">擲骰前行 <span id="dice-result">(?)</span></button>
-    </div>
+    // 遊戲狀態
+    const GAME_WIDTH = 800;
+    const GAME_HEIGHT = 450;
+    
+    // 物理參數
+    const GRAVITY = 0.6;
+    const FRICTION = 0.8;
+    const JUMP_FORCE = -12;
+    const SPEED = 5;
 
-    <div id="infoModal" class="modal">
-        <div class="modal-content">
-            <h2 id="modalTitle">標題</h2>
-            <p id="modalBody">內容</p>
-            <button class="close-btn" onclick="closeModal()">了解</button>
-        </div>
-    </div>
+    let keys = {
+        right: false,
+        left: false,
+        up: false
+    };
+
+    let gameState = {
+        score: 0,
+        won: false,
+        gameOver: false
+    };
+
+    // 玩家物件 (行旅者)
+    let player = {
+        x: 50,
+        y: 200,
+        width: 20,
+        height: 30,
+        velX: 0,
+        velY: 0,
+        grounded: false,
+        color: '#2b2b2b' // 墨色人物
+    };
+
+    // 關卡設計 (平台數據)
+    // 結合「S形」構圖概念，平台高低錯落
+    const platforms = [
+        { x: 0, y: 400, w: 200, h: 50, type: 'ground' },      // 起點大石
+        { x: 250, y: 320, w: 100, h: 30, type: 'cloud' },     // 中景雲頭皴
+        { x: 400, y: 250, w: 120, h: 40, type: 'cloud' },
+        { x: 280, y: 150, w: 100, h: 30, type: 'cloud' },     // 往回跳的S形動線
+        { x: 550, y: 180, w: 150, h: 40, type: 'cloud' },
+        { x: 700, y: 100, w: 100, h: 30, type: 'temple_base'} // 終點樓閣基座
+    ];
+
+    // 裝飾物：蟹爪枝 (樹木)
+    const trees = [
+        { x: 40, y: 400, scale: 1 },
+        { x: 150, y: 400, scale: 0.8 },
+        { x: 600, y: 180, scale: 0.6 } // 生長在高處的松
+    ];
+
+    // 收集品：印章
+    const seals = [
+        { x: 290, y: 290, collected: false },
+        { x: 320, y: 120, collected: false },
+        { x: 620, y: 150, collected: false }
+    ];
+
+    const goal = { x: 720, y: 50, w: 60, h: 50 }; // 終點：樓閣
+
+    // 事件監聽
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowRight') keys.right = true;
+        if (e.code === 'ArrowLeft') keys.left = true;
+        if (e.code === 'Space' || e.code === 'ArrowUp') {
+            if (player.grounded) {
+                player.velY = JUMP_FORCE;
+                player.grounded = false;
+            }
+        }
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowRight') keys.right = false;
+        if (e.code === 'ArrowLeft') keys.left = false;
+    });
+
+    // 繪圖輔助：畫蟹爪枝 (遞迴簡單模擬)
+    function drawCrabClawTree(x, y, scale) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        // 主幹
+        ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(5, -40, -10, -80);
+        
+        // 枝椏 (像伸指布掌)
+        ctx.moveTo(-10, -80);
+        ctx.lineTo(-30, -100);
+        ctx.moveTo(-10, -80);
+        ctx.lineTo(10, -110);
+        
+        ctx.moveTo(0, -40);
+        ctx.lineTo(20, -60);
+        
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // 繪圖輔助：畫雲頭皴 (岩石紋理)
+    function drawCloudRock(x, y, w, h) {
+        ctx.fillStyle = '#5d5d5d'; // 墨色岩石
+        
+        // 畫出不規則的邊緣，模擬雲頭
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        // 上緣波浪
+        for(let i=0; i<w; i+=20) {
+            ctx.quadraticCurveTo(x + i + 10, y - 5, x + i + 20, y);
+        }
+        ctx.lineTo(x + w, y + h);
+        ctx.lineTo(x, y + h);
+        ctx.fill();
+        
+        // 皴法紋理 (簡單線條模擬捲雲皴)
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(x + 20, y + 10, 10, 0, Math.PI, true);
+        ctx.arc(x + w - 30, y + 15, 12, 0, Math.PI, true);
+        ctx.stroke();
+    }
+
+    // 遊戲主迴圈
+    function update() {
+        if (gameState.won) return;
+
+        // 物理運算
+        if (keys.right) {
+            if (player.velX < SPEED) player.velX++;
+        }
+        if (keys.left) {
+            if (player.velX > -SPEED) player.velX--;
+        }
+
+        player.velX *= FRICTION;
+        player.velY += GRAVITY;
+
+        player.x += player.velX;
+        player.y += player.velY;
+        player.grounded = false;
+
+        // 平台碰撞檢測
+        ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        platforms.forEach(p => {
+            // 簡單的頂部碰撞
+            if (player.x + player.width > p.x && 
+                player.x < p.x + p.w && 
+                player.y + player.height > p.y && 
+                player.y + player.height < p.y + p.h + 10 && // 容錯
+                player.velY >= 0) {
+                    player.grounded = true;
+                    player.velY = 0;
+                    player.y = p.y - player.height;
+            }
+        });
+
+        // 邊界檢查
+        if (player.x < 0) player.x = 0;
+        if (player.x > GAME_WIDTH - player.width) player.x = GAME_WIDTH - player.width;
+        
+        // 掉落深淵 (重置)
+        if (player.y > GAME_HEIGHT) {
+            resetGame();
+        }
+
+        // 收集印章
+        seals.forEach(seal => {
+            if (!seal.collected) {
+                if (player.x < seal.x + 15 && player.x + player.width > seal.x - 15 &&
+                    player.y < seal.y + 15 && player.y + player.height > seal.y - 15) {
+                    seal.collected = true;
+                    gameState.score++;
+                    scoreEl.innerText = gameState.score;
+                }
+            }
+        });
+
+        // 勝利判定
+        if (player.x > goal.x && player.y < goal.y + goal.h) {
+            drawGame();
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.fillRect(100, 100, 600, 200);
+            ctx.fillStyle = "#3e2723";
+            ctx.font = "30px serif";
+            ctx.fillText("可遊可居，宛若真境", 260, 200);
+            ctx.font = "20px serif";
+            ctx.fillText("您已抵達深山樓閣", 310, 240);
+            gameState.won = true;
+            return;
+        }
+
+        drawGame();
+        requestAnimationFrame(update);
+    }
+
+    function drawGame() {
+        // 1. 繪製背景山巒 (淡墨)
+        ctx.fillStyle = "rgba(100, 100, 100, 0.2)";
+        ctx.beginPath();
+        ctx.moveTo(0, 450);
+        ctx.lineTo(200, 100);
+        ctx.lineTo(400, 300);
+        ctx.lineTo(600, 50);
+        ctx.lineTo(800, 450);
+        ctx.fill();
+
+        // 2. 繪製蟹爪枝 (樹)
+        trees.forEach(t => drawCrabClawTree(t.x, t.y, t.scale));
+
+        // 3. 繪製平台 (雲頭皴)
+        platforms.forEach(p => {
+            drawCloudRock(p.x, p.y, p.w, p.h);
+        });
+
+        // 4. 繪製印章 (紅色矩形)
+        seals.forEach(s => {
+            if (!s.collected) {
+                ctx.fillStyle = '#a83232'; // 印泥紅
+                ctx.fillRect(s.x - 10, s.y - 10, 20, 20);
+                ctx.strokeStyle = 'white';
+                ctx.strokeRect(s.x - 8, s.y - 8, 16, 16);
+            }
+        });
+
+        // 5. 繪製終點 (樓閣)
+        ctx.fillStyle = '#3e2723';
+        ctx.fillRect(goal.x, goal.y, goal.w, goal.h);
+        // 屋頂
+        ctx.beginPath();
+        ctx.moveTo(goal.x - 10, goal.y);
+        ctx.lineTo(goal.x + goal.w/2, goal.y - 20);
+        ctx.lineTo(goal.x + goal.w + 10, goal.y);
+        ctx.fill();
+
+        // 6. 繪製玩家 (行旅者 - 墨點風格)
+        ctx.fillStyle = player.color;
+        // 頭
+        ctx.beginPath();
+        ctx.arc(player.x + player.width/2, player.y + 5, 5, 0, Math.PI*2);
+        ctx.fill();
+        // 身體 (三角形似斗笠/蓑衣)
+        ctx.beginPath();
+        ctx.moveTo(player.x + player.width/2, player.y + 5);
+        ctx.lineTo(player.x, player.y + player.height);
+        ctx.lineTo(player.x + player.width, player.y + player.height);
+        ctx.fill();
+    }
+
+    function resetGame() {
+        player.x = 50;
+        player.y = 200;
+        player.velX = 0;
+        player.velY = 0;
+    }
+
+    // 啟動
+    update();
+
+</script>
 
 </body>
 </html>
